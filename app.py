@@ -4,6 +4,7 @@ from pptx import Presentation
 from pptx.util import Inches
 from PIL import Image
 import io
+import math
 
 def create_pptx_from_images(images):
     # 新しいプレゼンテーションを作成
@@ -28,6 +29,19 @@ def create_pptx_from_images(images):
     prs.save(pptx_stream)
     return pptx_stream.getvalue()
 
+def show_image_grid(images):
+    # 5列のグリッドで画像を表示
+    num_images = len(images)
+    num_rows = math.ceil(num_images / 5)
+    
+    for row in range(num_rows):
+        cols = st.columns(5)
+        for col_idx in range(5):
+            img_idx = row * 5 + col_idx
+            if img_idx < num_images:
+                with cols[col_idx]:
+                    st.image(images[img_idx], caption=f"Image {img_idx + 1}", use_column_width=True)
+
 def main():
     st.title("Images to PowerPoint Converter")
     st.write("Upload your images and convert them into a PowerPoint presentation.")
@@ -38,11 +52,9 @@ def main():
     if uploaded_files:
         st.write(f"Number of images uploaded: {len(uploaded_files)}")
         
-        # プレビューを表示（最初の5枚まで）
-        cols = st.columns(min(5, len(uploaded_files)))
-        for i, (col, image) in enumerate(zip(cols, uploaded_files[:5])):
-            with col:
-                st.image(image, caption=f"Image {i+1}", use_column_width=True)
+        # すべての画像をプレビュー表示
+        st.subheader("Image Preview")
+        show_image_grid(uploaded_files)
         
         if st.button("Convert to PowerPoint"):
             with st.spinner("Creating PowerPoint presentation..."):
